@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+mkdir -p build
+cd build
+CC=$(which gcc) CXX=$(which g++) cmake ..
+make && ctest --output-on-failure
