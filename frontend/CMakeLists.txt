@@ -22,6 +22,7 @@ add_executable(
 target_link_libraries(
     ${PROJECT_NAME}-tests
     GTest::gtest_main
+    GTest::gmock_main
 )
 
 include(GoogleTest)

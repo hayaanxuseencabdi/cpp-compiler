@@ -43,21 +43,39 @@ private:
   void scan_token() {
     const char c = advance();
     switch (c) {
-    case '(': add_token(Token::Type::LEFT_PAREN); break;
-    case ')': add_token(Token::Type::RIGHT_PAREN); break;
-    case '{': add_token(Token::Type::LEFT_BRACE); break;
-    case '}': add_token(Token::Type::RIGHT_BRACE); break;
-    case '[': add_token(Token::Type::LEFT_BRACKET); break;
-    case ']': add_token(Token::Type::RIGHT_BRACKET); break;
+    case '(':
+      add_token(Token::Type::LEFT_PAREN);
+      break;
+    case ')':
+      add_token(Token::Type::RIGHT_PAREN);
+      break;
+    case '{':
+      add_token(Token::Type::LEFT_BRACE);
+      break;
+    case '}':
+      add_token(Token::Type::RIGHT_BRACE);
+      break;
+    case '[':
+      add_token(Token::Type::LEFT_BRACKET);
+      break;
+    case ']':
+      add_token(Token::Type::RIGHT_BRACKET);
+      break;
+    case '!':
+      add_token(match('=') ? Token::Type::LOGICAL_NOT_EQUAL : Token::Type::LOGICAL_NOT);
+      break;
+    case '=':
+      add_token(match('=') ? Token::Type::LOGICAL_EQUAL : Token::Type::ASSIGN);
+      break;
     default:
-      // TODO: log warning/error?
+      // TODO: log warning/error
       break;
     }
   }
 
   void add_token(Token::Type type) {
-      std::string lexeme = source_code_.substr(start_, current_ - start_ + 1);
-      tokens_.emplace_back(type, lexeme);
+    std::string lexeme = source_code_.substr(start_, current_ - start_);
+    tokens_.emplace_back(type, lexeme);
   }
 
   std::string source_code_;

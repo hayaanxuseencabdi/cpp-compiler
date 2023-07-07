@@ -8,27 +8,53 @@ namespace frontend {
 class Token {
 public:
   enum class Type {
-    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, COMMA, DOT, MINUS, PLUS, SEMICOLON, STAR,
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    LEFT_BRACE,
+    RIGHT_BRACE,
+    LEFT_BRACKET,
+    RIGHT_BRACKET,
+    COMMA,
+    DOT,
+    MINUS,
+    PLUS,
+    SEMICOLON,
+    STAR,
+    LOGICAL_EQUAL,
+    LOGICAL_NOT_EQUAL,
+    LOGICAL_NOT,
+    ASSIGN,
+
 
     // Keywords
-    AND, ELSE, FALSE, FUNCTION, FOR, IF, OR, RETURN, THIS, TRUE, VAR, WHILE,
+    AND,
+    ELSE,
+    FALSE,
+    FUNCTION,
+    FOR,
+    IF,
+    OR,
+    RETURN,
+    THIS,
+    TRUE,
+    VAR,
+    WHILE,
 
     // Literals
-    IDENTIFIER, STRING, NUMBER,
+    IDENTIFIER,
+    STRING,
+    NUMBER,
 
     END_OF_FILE
   };
 
-  Token(Type type, std::optional<std::string> lexeme) : type_(type), lexeme_(lexeme), line_(0) {}
-  bool operator==(const Token& other) const {
-      if (type_ != other.type_) {
-          return false;
-      }
-      return lexeme_ == other.lexeme_;
-  }
+  Token(Type type, std::optional<std::string> lexeme)
+      : type_(type), lexeme_(lexeme), line_(0) {}
+
+  constexpr auto operator<=>(const Token& other) const = default;
 
   std::string to_string() const {
-    return std::vformat("{}: {}", std::make_format_args(line_, type_));
+    return std::vformat("{}: {} ({})", std::make_format_args(line_, type_, lexeme_.value_or("NONE")));
   }
 
 private:
