@@ -3,7 +3,7 @@ project(compiler-frontend)
 add_subdirectory(src)
 
 add_library(
-   ${PROJECT_NAME} 
+   ${PROJECT_NAME}
 
    ${SOURCE}
 )
@@ -19,12 +19,14 @@ add_executable(
 
     ${TESTS}
 )
+
 target_link_libraries(
     ${PROJECT_NAME}-tests
+
+    ${PROJECT_NAME}
     GTest::gtest_main
     GTest::gmock_main
 )
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}-tests)
-

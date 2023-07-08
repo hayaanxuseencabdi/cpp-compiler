@@ -27,6 +27,7 @@ public:
     Token(Type type, std::optional<std::string> lexeme)
         : line_(0), type_(type), lexeme_(std::move(lexeme)) {}
 
+    // FIXME: less/greater than semantics for tokens does not make sense
     constexpr auto operator<=>(const Token& other) const = default;
 
     std::string to_string() const {
@@ -48,7 +49,7 @@ namespace std {
 
 template <> struct formatter<frontend::Token::Type> : formatter<string_view> {
     auto format(frontend::Token::Type type, format_context& ctx) const {
-        string_view name = "Unknown";
+        string_view name = "UNDEFINED";
         switch (type) {
         case frontend::Token::Type::LEFT_PAREN:
             name = "LEFT_PAREN";
