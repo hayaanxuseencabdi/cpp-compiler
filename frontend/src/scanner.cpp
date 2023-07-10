@@ -1,6 +1,26 @@
 #include "scanner.h"
 
+#include <format>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+
 namespace frontend {
+
+namespace {
+const std::unordered_map<std::string_view, Token::Type> KEYWORDS{
+    {"const", Token::Type::CONST}, {"and", Token::Type::AND},
+    {"class", Token::Type::CLASS}, {"else", Token::Type::ELSE},
+    {"false", Token::Type::FALSE}, {"fun", Token::Type::FUN},
+    {"for", Token::Type::FOR},     {"if", Token::Type::IF},
+    {"or", Token::Type::OR},       {"return", Token::Type::RETURN},
+    {"this", Token::Type::THIS},   {"true", Token::Type::TRUE},
+    {"while", Token::Type::WHILE},
+};
+
+}
 
 Scanner::Scanner(std::string source_code)
     : source_code_(std::move(source_code)) {}
@@ -113,59 +133,73 @@ std::optional<Token> Scanner::scan_identifier() {
     }
 
     const auto lexeme = source_code_.substr(start_, current_ - start_);
+
+    const auto keyword_entry = KEYWORDS.find(lexeme);
+    if (keyword_entry != KEYWORDS.end()) {
+        return Token(keyword_entry->second, lexeme);
+    }
+
     return Token(Token::Type::IDENTIFIER, lexeme);
 }
 
 std::optional<Token> Scanner::scan_token() {
     const char c = advance();
     switch (c) {
-    case '(':
-        return create_simple_token(Token::Type::LEFT_PAREN);
-    case ')':
-        return create_simple_token(Token::Type::RIGHT_PAREN);
-    case '{':
-        return create_simple_token(Token::Type::LEFT_BRACE);
-    case '}':
-        return create_simple_token(Token::Type::RIGHT_BRACE);
-    case '[':
-        return create_simple_token(Token::Type::LEFT_BRACKET);
-    case ']':
-        return create_simple_token(Token::Type::RIGHT_BRACKET);
-    case '!':
-        return create_simple_token(match('=') ? Token::Type::BANG_EQUAL
-                                              : Token::Type::BANG);
-    case '=':
-        return create_simple_token(match('=') ? Token::Type::EQUAL_EQUAL
-                                              : Token::Type::EQUAL);
-    case '/':
-        if (match('/')) {
-            while (!is_at_end() && peek() != '\n') {
-                advance();
+        case '(':
+            return create_simple_token(Token::Type::LEFT_PAREN);
+        case ')':
+            return create_simple_token(Token::Type::RIGHT_PAREN);
+        case '{':
+            return create_simple_token(Token::Type::LEFT_BRACE);
+        case '}':
+            return create_simple_token(Token::Type::RIGHT_BRACE);
+        case '[':
+            return create_simple_token(Token::Type::LEFT_BRACKET);
+        case ']':
+            return create_simple_token(Token::Type::RIGHT_BRACKET);
+        case ';':
+            return create_simple_token(Token::Type::SEMICOLON);
+        case '!':
+            return create_simple_token(match('=') ? Token::Type::BANG_EQUAL
+                                                  : Token::Type::BANG);
+        case '=':
+            return create_simple_token(match('=') ? Token::Type::EQUAL_EQUAL
+                                                  : Token::Type::EQUAL);
+        case '<':
+            return create_simple_token(match('=') ? Token::Type::LESS_EQUAL
+                                                  : Token::Type::LESS);
+        case '>':
+            return create_simple_token(match('=') ? Token::Type::GREATER_EQUAL
+                                                  : Token::Type::GREATER);
+        case '/':
+            if (match('/')) {
+                while (!is_at_end() && peek() != '\n') {
+                    advance();
+                }
+            } else {
+                return create_simple_token(Token::Type::SLASH);
             }
-        } else {
-            return create_simple_token(Token::Type::SLASH);
-        }
-    case ' ':
-    case '\r':
-    case '\t':
-        break;
-    case '\n':
-        ++line_;
-        break;
-    case '"':
-        return scan_string();
-        break;
-    default:
-        if (is_digit(c)) {
-            return scan_number();
-        } else if (is_alpha(c)) {
-            return scan_identifier();
-        }
-        // TODO: log warning/error
-        std::cerr << std::vformat(
-            "Failed to match the following the following character: {}\n",
-            std::make_format_args(c));
-        break;
+        case ' ':
+        case '\r':
+        case '\t':
+            break;
+        case '\n':
+            ++line_;
+            break;
+        case '"':
+            return scan_string();
+            break;
+        default:
+            if (is_digit(c)) {
+                return scan_number();
+            } else if (is_alpha(c)) {
+                return scan_identifier();
+            }
+            // TODO: log warning/error
+            std::cerr << std::vformat(
+                "Failed to match the following the following character: {}\n",
+                std::make_format_args(c));
+            break;
     }
     return std::nullopt;
 }

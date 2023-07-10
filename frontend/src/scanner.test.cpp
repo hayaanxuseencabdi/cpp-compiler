@@ -17,8 +17,8 @@ void compare_tokens(const std::vector<Token>& parsed_tokens,
 
     for (size_t index = 0; index < expected_tokens.size(); ++index) {
         EXPECT_EQ(parsed_tokens[index], expected_tokens[index]) << std::vformat(
-            "Parsed: {} vs. expected: {}",
-            std::make_format_args(parsed_tokens[index].to_string(),
+            "{}'th token: parsed: {} vs. expected: {}",
+            std::make_format_args(index, parsed_tokens[index].to_string(),
                                   expected_tokens[index].to_string()));
     }
 }
@@ -86,6 +86,46 @@ TEST(ScannerTests, ScanIdentifier) {
         Token(Token::Type::IDENTIFIER, "point2"),
         Token(Token::Type::IDENTIFIER, "abc"),
         Token(Token::Type::IDENTIFIER, "_ab"),
+    };
+
+    const auto parsed_tokens = scanner.scan_tokens();
+
+    compare_tokens(parsed_tokens, expected_tokens);
+}
+
+TEST(ScannerTests, ScanKeywords) {
+    frontend::Scanner scanner(R"(
+        if (x <= 5) {
+            return 2;
+        }
+
+        return false;
+
+        class Animal {};
+    )");
+    const std::vector<frontend::Token> expected_tokens{
+        Token(Token::Type::IF, "if"),
+        Token(Token::Type::LEFT_PAREN, "("),
+        Token(Token::Type::IDENTIFIER, "x"),
+        Token(Token::Type::LESS_EQUAL, "<="),
+        Token(Token::Type::NUMBER, "5"),
+        Token(Token::Type::RIGHT_PAREN, ")"),
+        Token(Token::Type::LEFT_BRACE, "{"),
+        Token(Token::Type::RETURN, "return"),
+        Token(Token::Type::NUMBER, "2"),
+        Token(Token::Type::SEMICOLON, ";"),
+        Token(Token::Type::RIGHT_BRACE, "}"),
+
+        Token(Token::Type::RETURN, "return"),
+        Token(Token::Type::FALSE, "false"),
+        Token(Token::Type::SEMICOLON, ";"),
+
+        Token(Token::Type::CLASS, "class"),
+        Token(Token::Type::IDENTIFIER, "Animal"),
+        Token(Token::Type::LEFT_BRACE, "{"),
+        Token(Token::Type::RIGHT_BRACE, "}"),
+        Token(Token::Type::SEMICOLON, ";"),
+
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
