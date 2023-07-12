@@ -23,35 +23,35 @@ void compare_tokens(const std::vector<Token>& parsed_tokens,
     }
 }
 
-TEST(ScannerTests, ScanTokens) {
+TEST(ScannerTests, Tokens) {
     frontend::Scanner scanner("[]]]]!=[[{{{==[=");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-        Token(Token::Type::BANG_EQUAL, "!="),
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::LEFT_BRACE, "{"),
-        Token(Token::Type::LEFT_BRACE, "{"),
-        Token(Token::Type::LEFT_BRACE, "{"),
-        Token(Token::Type::EQUAL_EQUAL, "=="),
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::EQUAL, "=")};
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::BANG_EQUAL),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::LEFT_BRACE),
+        Token(1, Token::Type::LEFT_BRACE),
+        Token(1, Token::Type::LEFT_BRACE),
+        Token(1, Token::Type::EQUAL_EQUAL),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::EQUAL)};
 
     const auto parsed_tokens = scanner.scan_tokens();
 
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, ScanStrings) {
+TEST(ScannerTests, Strings) {
     frontend::Scanner scanner(R"(["test"])");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::STRING, "test"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::STRING, "test"),
+        Token(1, Token::Type::RIGHT_BRACKET),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -59,16 +59,15 @@ TEST(ScannerTests, ScanStrings) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, ScanNumbers) {
+TEST(ScannerTests, Numbers) {
     frontend::Scanner scanner("[542] [342.024]");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::NUMBER, "542"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::NUMBER, "342.024"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::NUMBER, "542"),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::NUMBER, "342.024"),
+        Token(1, Token::Type::RIGHT_BRACKET),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -76,16 +75,15 @@ TEST(ScannerTests, ScanNumbers) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, ScanIdentifier) {
+TEST(ScannerTests, Identifier) {
     frontend::Scanner scanner("[542] point2 abc _ab");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::NUMBER, "542"),
-        Token(Token::Type::RIGHT_BRACKET, "]"),
-
-        Token(Token::Type::IDENTIFIER, "point2"),
-        Token(Token::Type::IDENTIFIER, "abc"),
-        Token(Token::Type::IDENTIFIER, "_ab"),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::NUMBER, "542"),
+        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::IDENTIFIER, "point2"),
+        Token(1, Token::Type::IDENTIFIER, "abc"),
+        Token(1, Token::Type::IDENTIFIER, "_ab"),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -93,7 +91,7 @@ TEST(ScannerTests, ScanIdentifier) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, ScanKeywords) {
+TEST(ScannerTests, ReservedWords) {
     frontend::Scanner scanner(R"(
         if (x <= 5) {
             return 2;
@@ -104,27 +102,25 @@ TEST(ScannerTests, ScanKeywords) {
         class Animal {};
     )");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::IF, "if"),
-        Token(Token::Type::LEFT_PAREN, "("),
-        Token(Token::Type::IDENTIFIER, "x"),
-        Token(Token::Type::LESS_EQUAL, "<="),
-        Token(Token::Type::NUMBER, "5"),
-        Token(Token::Type::RIGHT_PAREN, ")"),
-        Token(Token::Type::LEFT_BRACE, "{"),
-        Token(Token::Type::RETURN, "return"),
-        Token(Token::Type::NUMBER, "2"),
-        Token(Token::Type::SEMICOLON, ";"),
-        Token(Token::Type::RIGHT_BRACE, "}"),
-
-        Token(Token::Type::RETURN, "return"),
-        Token(Token::Type::FALSE, "false"),
-        Token(Token::Type::SEMICOLON, ";"),
-
-        Token(Token::Type::CLASS, "class"),
-        Token(Token::Type::IDENTIFIER, "Animal"),
-        Token(Token::Type::LEFT_BRACE, "{"),
-        Token(Token::Type::RIGHT_BRACE, "}"),
-        Token(Token::Type::SEMICOLON, ";"),
+        Token(2, Token::Type::IF),
+        Token(2, Token::Type::LEFT_PAREN),
+        Token(2, Token::Type::IDENTIFIER, "x"),
+        Token(2, Token::Type::LESS_EQUAL),
+        Token(2, Token::Type::NUMBER, "5"),
+        Token(2, Token::Type::RIGHT_PAREN),
+        Token(2, Token::Type::LEFT_BRACE),
+        Token(3, Token::Type::RETURN),
+        Token(3, Token::Type::NUMBER, "2"),
+        Token(3, Token::Type::SEMICOLON),
+        Token(4, Token::Type::RIGHT_BRACE),
+        Token(6, Token::Type::RETURN),
+        Token(6, Token::Type::FALSE),
+        Token(6, Token::Type::SEMICOLON),
+        Token(8, Token::Type::CLASS),
+        Token(8, Token::Type::IDENTIFIER, "Animal"),
+        Token(8, Token::Type::LEFT_BRACE),
+        Token(8, Token::Type::RIGHT_BRACE),
+        Token(8, Token::Type::SEMICOLON),
 
     };
 
@@ -133,15 +129,15 @@ TEST(ScannerTests, ScanKeywords) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, HandleUnexpectedTokens) {
+TEST(ScannerTests, UnexpectedTokens) {
     frontend::Scanner scanner("_|_[|_= !=");
     const std::vector<frontend::Token> expected_tokens{
-        Token(Token::Type::IDENTIFIER, "_"),
-        Token(Token::Type::IDENTIFIER, "_"),
-        Token(Token::Type::LEFT_BRACKET, "["),
-        Token(Token::Type::IDENTIFIER, "_"),
-        Token(Token::Type::EQUAL, "="),
-        Token(Token::Type::BANG_EQUAL, "!="),
+        Token(1, Token::Type::IDENTIFIER, "_"),
+        Token(1, Token::Type::IDENTIFIER, "_"),
+        Token(1, Token::Type::LEFT_BRACKET),
+        Token(1, Token::Type::IDENTIFIER, "_"),
+        Token(1, Token::Type::EQUAL),
+        Token(1, Token::Type::BANG_EQUAL),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();

@@ -10,7 +10,7 @@
 namespace frontend {
 
 namespace {
-const std::unordered_map<std::string_view, Token::Type> KEYWORDS{
+const std::unordered_map<std::string_view, Token::Type> RESERVED_WORDS{
     {"const", Token::Type::CONST}, {"and", Token::Type::AND},
     {"class", Token::Type::CLASS}, {"else", Token::Type::ELSE},
     {"false", Token::Type::FALSE}, {"fun", Token::Type::FUN},
@@ -85,8 +85,7 @@ char Scanner::peek_next() const {
 }
 
 Token Scanner::create_simple_token(Token::Type type) {
-    std::string lexeme = source_code_.substr(start_, current_ - start_);
-    return Token(type, lexeme);
+    return Token(line_, type);
 }
 
 std::optional<Token> Scanner::scan_string() {
@@ -107,7 +106,7 @@ std::optional<Token> Scanner::scan_string() {
 
     // +1 and -2 offsets to trim the surrounding quotes
     std::string lexeme = source_code_.substr(start_ + 1, current_ - start_ - 2);
-    return Token(Token::Type::STRING, lexeme);
+    return Token(line_, Token::Type::STRING, lexeme);
 }
 
 std::optional<Token> Scanner::scan_number() {
@@ -122,9 +121,9 @@ std::optional<Token> Scanner::scan_number() {
         }
     }
 
-    const auto lexeme = source_code_.substr(start_, current_ - start_);
+    auto lexeme = source_code_.substr(start_, current_ - start_);
     // TODO: convert to actual number?
-    return Token(Token::Type::NUMBER, lexeme);
+    return Token(line_, Token::Type::NUMBER, lexeme);
 }
 
 std::optional<Token> Scanner::scan_identifier() {
@@ -132,14 +131,14 @@ std::optional<Token> Scanner::scan_identifier() {
         advance();
     }
 
-    const auto lexeme = source_code_.substr(start_, current_ - start_);
+    auto lexeme = source_code_.substr(start_, current_ - start_);
 
-    const auto keyword_entry = KEYWORDS.find(lexeme);
-    if (keyword_entry != KEYWORDS.end()) {
-        return Token(keyword_entry->second, lexeme);
+    if (const auto word = RESERVED_WORDS.find(lexeme);
+        word != RESERVED_WORDS.end()) {
+        return create_simple_token(word->second);
     }
 
-    return Token(Token::Type::IDENTIFIER, lexeme);
+    return Token(line_, Token::Type::IDENTIFIER, lexeme);
 }
 
 std::optional<Token> Scanner::scan_token() {

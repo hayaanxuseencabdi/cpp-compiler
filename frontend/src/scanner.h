@@ -29,7 +29,7 @@ private:
     std::optional<Token> scan_token();
 
     std::string source_code_;
-    size_t line_ = 0;
+    size_t line_ = 1;
     size_t start_ = 0;
     size_t current_ = 0;
 };

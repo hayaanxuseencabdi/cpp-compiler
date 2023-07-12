@@ -24,8 +24,10 @@ public:
         // clang-format on
     };
 
-    Token(Type type, std::optional<std::string> lexeme)
-        : line_(0), type_(type), lexeme_(std::move(lexeme)) {}
+    Token(std::size_t line, Type type, std::optional<std::string> lexeme)
+        : line_(line), type_(type), lexeme_(std::move(lexeme)) {}
+
+    Token(std::size_t line, Type type) : Token(line, type, std::nullopt) {}
 
     // FIXME: less/greater than semantics for tokens does not make sense
     constexpr auto operator<=>(const Token& other) const = default;
@@ -45,9 +47,8 @@ private:
 
 } // namespace frontend
 
-namespace std {
-
-template <> struct formatter<frontend::Token::Type> : formatter<string_view> {
+template <>
+struct std::formatter<frontend::Token::Type> : std::formatter<string_view> {
     auto format(frontend::Token::Type type, format_context& ctx) const {
         string_view name = "UNDEFINED";
         switch (type) {
@@ -123,6 +124,9 @@ template <> struct formatter<frontend::Token::Type> : formatter<string_view> {
             case frontend::Token::Type::NUMBER:
                 name = "NUMBER";
                 break;
+            case frontend::Token::Type::CONST:
+                name = "CONST";
+                break;
             case frontend::Token::Type::AND:
                 name = "AND";
                 break;
@@ -162,11 +166,7 @@ template <> struct formatter<frontend::Token::Type> : formatter<string_view> {
             case frontend::Token::Type::END_OF_FILE:
                 name = "END_OF_FILE";
                 break;
-            default:
-                break;
         }
         return formatter<string_view>::format(name, ctx);
     }
 };
-
-} // namespace std
