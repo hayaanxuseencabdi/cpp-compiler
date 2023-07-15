@@ -48,16 +48,26 @@ message(STATUS "C++ compiler being used is ${CMAKE_CXX_COMPILER_ID}")
 
 project(compiler)
 
-# GoogleTest
 include(FetchContent)
+
+# GoogleTest
 FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
 )
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-include_directories("/usr/local/include/c++/13.1.0/")
+# C++ core guidelines support library
+FetchContent_Declare(
+    GSL
+    GIT_REPOSITORY "https://github.com/microsoft/GSL"
+    GIT_TAG "v4.0.0"
+    GIT_SHALLOW ON
+)
 
+FetchContent_MakeAvailable(GSL)
+
+include_directories("/usr/local/include/c++/13.1.0/")
 add_subdirectory(frontend)

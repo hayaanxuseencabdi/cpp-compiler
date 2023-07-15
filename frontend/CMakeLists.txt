@@ -8,10 +8,15 @@ add_library(
    ${SOURCE}
 )
 
+target_link_libraries(
+    ${PROJECT_NAME}
+
+    PUBLIC Microsoft.GSL::GSL)
+
 target_include_directories(
     ${PROJECT_NAME}
-    PUBLIC
-	"${CMAKE_CURRENT_SOURCE_DIR}/src"
+
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
 add_executable(
@@ -23,9 +28,7 @@ add_executable(
 target_link_libraries(
     ${PROJECT_NAME}-tests
 
-    ${PROJECT_NAME}
-    GTest::gtest_main
-    GTest::gmock_main
+    PRIVATE ${PROJECT_NAME} GTest::gtest_main GTest::gmock_main
 )
 
 include(GoogleTest)
