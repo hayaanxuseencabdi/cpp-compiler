@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <vector>
@@ -29,9 +30,9 @@ private:
     std::optional<Token> scan_token();
 
     std::string source_code_;
-    size_t line_ = 1;
-    size_t start_ = 0;
-    size_t current_ = 0;
+    std::size_t line_ = 1;
+    std::size_t start_ = 0;
+    std::size_t current_ = 0;
 };
 
 } // namespace frontend

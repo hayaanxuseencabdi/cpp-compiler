@@ -34,6 +34,7 @@ std::vector<Token> Scanner::scan_tokens() {
             tokens.push_back(scanned_token.value());
         }
     }
+    tokens.emplace_back(line_, Token::Type::END_OF_FILE);
     return tokens;
 }
 

@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <format>
 #include <iostream>
 
@@ -15,7 +16,7 @@ void compare_tokens(const std::vector<Token>& parsed_tokens,
                     const std::vector<Token>& expected_tokens) {
     EXPECT_EQ(parsed_tokens.size(), expected_tokens.size());
 
-    for (size_t index = 0; index < expected_tokens.size(); ++index) {
+    for (std::size_t index = 0; index < expected_tokens.size(); ++index) {
         EXPECT_EQ(parsed_tokens[index], expected_tokens[index]) << std::vformat(
             "{}'th token: parsed: {} vs. expected: {}",
             std::make_format_args(index, parsed_tokens[index].to_string(),
@@ -39,7 +40,9 @@ TEST(ScannerTests, Tokens) {
         Token(1, Token::Type::LEFT_BRACE),
         Token(1, Token::Type::EQUAL_EQUAL),
         Token(1, Token::Type::LEFT_BRACKET),
-        Token(1, Token::Type::EQUAL)};
+        Token(1, Token::Type::EQUAL),
+        Token(1, Token::Type::END_OF_FILE),
+    };
 
     const auto parsed_tokens = scanner.scan_tokens();
 
@@ -52,6 +55,7 @@ TEST(ScannerTests, Strings) {
         Token(1, Token::Type::LEFT_BRACKET),
         Token(1, Token::Type::STRING, "test"),
         Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::END_OF_FILE),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -68,6 +72,7 @@ TEST(ScannerTests, Numbers) {
         Token(1, Token::Type::LEFT_BRACKET),
         Token(1, Token::Type::NUMBER, "342.024"),
         Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::END_OF_FILE),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -84,6 +89,7 @@ TEST(ScannerTests, Identifier) {
         Token(1, Token::Type::IDENTIFIER, "point2"),
         Token(1, Token::Type::IDENTIFIER, "abc"),
         Token(1, Token::Type::IDENTIFIER, "_ab"),
+        Token(1, Token::Type::END_OF_FILE),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -121,7 +127,7 @@ TEST(ScannerTests, ReservedWords) {
         Token(8, Token::Type::LEFT_BRACE),
         Token(8, Token::Type::RIGHT_BRACE),
         Token(8, Token::Type::SEMICOLON),
-
+        Token(9, Token::Type::END_OF_FILE),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();
@@ -138,6 +144,7 @@ TEST(ScannerTests, UnexpectedTokens) {
         Token(1, Token::Type::IDENTIFIER, "_"),
         Token(1, Token::Type::EQUAL),
         Token(1, Token::Type::BANG_EQUAL),
+        Token(1, Token::Type::END_OF_FILE),
     };
 
     const auto parsed_tokens = scanner.scan_tokens();

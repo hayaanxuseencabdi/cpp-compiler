@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <format>
 #include <string>
 
@@ -25,7 +26,7 @@ public:
     };
 
     Token(std::size_t line, Type type, std::optional<std::string> lexeme)
-        : line_(line), type_(type), lexeme_(std::move(lexeme)) {}
+        : type_(type), line_(line), lexeme_(std::move(lexeme)) {}
 
     Token(std::size_t line, Type type) : Token(line, type, std::nullopt) {}
 
@@ -33,9 +34,12 @@ public:
     constexpr auto operator<=>(const Token& other) const = default;
 
     std::string to_string() const {
-        return std::vformat(
-            "{}: {} ({})",
-            std::make_format_args(line_, type_, lexeme_.value_or("NONE")));
+        if (lexeme_.has_value()) {
+            return std::vformat(
+                "{}: {} ({})",
+                std::make_format_args(line_, type_, lexeme_.value_or("NONE")));
+        }
+        return std::vformat("{}: {}", std::make_format_args(line_, type_));
     }
 
 private:
