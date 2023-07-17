@@ -49,6 +49,7 @@ message(STATUS "C++ compiler being used is ${CMAKE_CXX_COMPILER_ID}")
 project(compiler)
 
 include(FetchContent)
+cmake_policy(SET CMP0135 NEW)
 
 # GoogleTest
 FetchContent_Declare(

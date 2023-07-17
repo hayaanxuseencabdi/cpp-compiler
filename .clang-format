@@ -10,4 +10,5 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 AllowShortFunctionsOnASingleLine: Empty
 IndentCaseLabels: true
+AlwaysBreakTemplateDeclarations: Yes
 ---

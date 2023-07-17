@@ -31,5 +31,15 @@ target_link_libraries(
     PRIVATE ${PROJECT_NAME} GTest::gtest_main GTest::gmock_main
 )
 
+target_compile_options(
+    ${PROJECT_NAME}-tests
+    PRIVATE -fsanitize=address
+)
+
+target_link_options(
+    ${PROJECT_NAME}-tests
+    PRIVATE -fsanitize=address
+)
+
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}-tests)
