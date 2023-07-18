@@ -6,7 +6,7 @@
 
 #include <gsl/pointers>
 
-#include "token.h"
+#include "ast/operator.h"
 
 namespace frontend::ast {
 
@@ -38,7 +38,7 @@ public:
 
 class UnaryOperation final : public Expression {
 public:
-    UnaryOperation(Token::Type op, std::unique_ptr<Expression> operand)
+    UnaryOperation(Operator::Type op, std::unique_ptr<Expression> operand)
         : operator_(op), operand_(gsl::make_not_null(std::move(operand))) {}
 
     std::string to_string() const override {
@@ -48,13 +48,13 @@ public:
     }
 
 private:
-    Token::Type operator_;
+    Operator::Type operator_;
     gsl::not_null<std::unique_ptr<Expression>> operand_;
 };
 
 class BinaryOperation final : public Expression {
 public:
-    BinaryOperation(std::unique_ptr<Expression> left, Token::Type op,
+    BinaryOperation(std::unique_ptr<Expression> left, Operator::Type op,
                     std::unique_ptr<Expression> right)
         : left_(gsl::make_not_null(std::move(left))), operator_(op),
           right_(gsl::make_not_null(std::move(right))) {}
@@ -68,7 +68,7 @@ public:
 
 private:
     gsl::not_null<std::unique_ptr<Expression>> left_;
-    Token::Type operator_;
+    Operator::Type operator_;
     gsl::not_null<std::unique_ptr<Expression>> right_;
 };
 

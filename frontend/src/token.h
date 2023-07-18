@@ -51,9 +51,10 @@ private:
 } // namespace frontend
 
 template <>
-struct std::formatter<frontend::Token::Type> : std::formatter<string_view> {
-    auto format(frontend::Token::Type type, format_context& ctx) const {
-        string_view name = "UNDEFINED";
+struct std::formatter<frontend::Token::Type>
+    : std::formatter<std::string_view> {
+    auto format(frontend::Token::Type type, std::format_context& ctx) const {
+        std::string_view name = "UNDEFINED";
         switch (type) {
             case frontend::Token::Type::LEFT_PAREN:
                 name = "LEFT_PAREN";
@@ -170,6 +171,6 @@ struct std::formatter<frontend::Token::Type> : std::formatter<string_view> {
                 name = "END_OF_FILE";
                 break;
         }
-        return formatter<string_view>::format(name, ctx);
+        return std::formatter<std::string_view>::format(name, ctx);
     }
 };
