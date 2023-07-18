@@ -6,8 +6,7 @@
 
 namespace frontend {
 
-class Token {
-public:
+struct Token {
     enum class Type {
         // clang-format off
 
@@ -30,8 +29,7 @@ public:
 
     Token(std::size_t line, Type type) : Token(line, type, std::nullopt) {}
 
-    // FIXME: less/greater than semantics for tokens does not make sense
-    constexpr auto operator<=>(const Token& other) const = default;
+    bool operator==(const Token& other) const = default;
 
     std::string to_string() const {
         if (lexeme_.has_value()) {
@@ -42,7 +40,6 @@ public:
         return std::vformat("{}: {}", std::make_format_args(line_, type_));
     }
 
-private:
     std::size_t line_;
     Type type_;
     std::optional<std::string> lexeme_;
