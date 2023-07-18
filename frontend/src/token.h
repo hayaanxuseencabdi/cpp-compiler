@@ -26,7 +26,7 @@ public:
     };
 
     Token(std::size_t line, Type type, std::optional<std::string> lexeme)
-        : type_(type), line_(line), lexeme_(std::move(lexeme)) {}
+        : line_(line), type_(type), lexeme_(std::move(lexeme)) {}
 
     Token(std::size_t line, Type type) : Token(line, type, std::nullopt) {}
 
@@ -46,7 +46,6 @@ private:
     std::size_t line_;
     Type type_;
     std::optional<std::string> lexeme_;
-    // TODO: optional literal
 };
 
 } // namespace frontend
