@@ -33,9 +33,8 @@ struct Token {
 
     std::string to_string() const {
         if (lexeme_.has_value()) {
-            return std::vformat(
-                "{}: {} ({})",
-                std::make_format_args(line_, type_, lexeme_.value_or("NONE")));
+            return std::vformat("{}: {} ({})",
+                                std::make_format_args(line_, type_, *lexeme_));
         }
         return std::vformat("{}: {}", std::make_format_args(line_, type_));
     }

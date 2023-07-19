@@ -3,6 +3,8 @@
 #include <format>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <gsl/pointers>
 
@@ -19,6 +21,27 @@ class Node {
 public:
     virtual std::string to_string() const = 0;
     virtual ~Node() = default;
+};
+
+class Block final : public Node {
+public:
+    std::string to_string() const override {
+        std::string str;
+        if (!statements_.empty()) {
+            str = std::vformat(
+                "{}", std::make_format_args(statements_.front()->to_string()));
+            for (std::size_t i = 1; i < statements_.size(); ++i) {
+                str += std::vformat(
+                    ", {}", std::make_format_args(statements_[i]->to_string()));
+            }
+        }
+
+        return std::vformat("Block(statements: [{}])",
+                            std::make_format_args(str));
+    }
+
+    // TODO: should be wrapped within gsl::not_null
+    std::vector<std::unique_ptr<Node>> statements_{};
 };
 
 class Expression : public Node {};
