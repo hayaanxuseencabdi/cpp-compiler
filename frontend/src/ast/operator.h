@@ -7,6 +7,9 @@ namespace frontend::ast {
 
 struct Operator {
     enum class Type {
+        // clang-format off
+
+        // Aritmhmetic
         UNARY_PLUS,
         UNARY_MINUS,
 
@@ -27,6 +30,16 @@ struct Operator {
         LOGICAL_NOT,
         LOGICAL_AND,
         LOGICAL_OR,
+
+        // Comparison
+        EQUAL_TO,
+        NOT_EQUAL_TO,
+        LESS_THAN,
+        LESS_THAN_OR_EQUAL_TO,
+        GREATER_THAN,
+        GREATER_THAN_OR_EQUAL_TO,
+
+        // clang-format on
     };
 };
 
@@ -86,6 +99,24 @@ struct std::formatter<frontend::ast::Operator::Type>
                 break;
             case frontend::ast::Operator::Type::LOGICAL_OR:
                 name = "LOGICAL_OR";
+                break;
+            case frontend::ast::Operator::Type::EQUAL_TO:
+                name = "EQUAL_TO";
+                break;
+            case frontend::ast::Operator::Type::NOT_EQUAL_TO:
+                name = "NOT_EQUAL_TO";
+                break;
+            case frontend::ast::Operator::Type::LESS_THAN:
+                name = "LESS_THAN";
+                break;
+            case frontend::ast::Operator::Type::LESS_THAN_OR_EQUAL_TO:
+                name = "LESS_THAN_OR_EQUAL_TO";
+                break;
+            case frontend::ast::Operator::Type::GREATER_THAN:
+                name = "GREATER_THAN";
+                break;
+            case frontend::ast::Operator::Type::GREATER_THAN_OR_EQUAL_TO:
+                name = "GREATER_THAN_OR_EQUAL_TO";
                 break;
         }
         return std::formatter<std::string_view>::format(name, ctx);

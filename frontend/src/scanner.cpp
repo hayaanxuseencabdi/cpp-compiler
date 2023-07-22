@@ -11,13 +11,12 @@ namespace frontend {
 
 namespace {
 const std::unordered_map<std::string_view, Token::Type> RESERVED_WORDS{
-    {"const", Token::Type::CONST}, {"and", Token::Type::AND},
-    {"class", Token::Type::CLASS}, {"else", Token::Type::ELSE},
-    {"false", Token::Type::FALSE}, {"fun", Token::Type::FUN},
-    {"for", Token::Type::FOR},     {"if", Token::Type::IF},
-    {"or", Token::Type::OR},       {"return", Token::Type::RETURN},
-    {"this", Token::Type::THIS},   {"true", Token::Type::TRUE},
-    {"while", Token::Type::WHILE},
+    {"const", Token::Type::CONST},   {"class", Token::Type::CLASS},
+    {"else", Token::Type::ELSE},     {"false", Token::Type::FALSE},
+    {"fun", Token::Type::FUN},       {"for", Token::Type::FOR},
+    {"if", Token::Type::IF},         {"or", Token::Type::OR},
+    {"return", Token::Type::RETURN}, {"this", Token::Type::THIS},
+    {"true", Token::Type::TRUE},     {"while", Token::Type::WHILE},
 };
 
 }

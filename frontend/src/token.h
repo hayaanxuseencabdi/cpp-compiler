@@ -17,7 +17,7 @@ struct Token {
         // Literals.
         IDENTIFIER, STRING, NUMBER,
         // Keywords.
-        CONST, AND, CLASS, ELSE, FALSE, FUN, FOR, IF, OR, RETURN, THIS, TRUE, WHILE,
+        CONST, CLASS, ELSE, FALSE, FUN, FOR, IF, OR, RETURN, THIS, TRUE, WHILE,
 
         END_OF_FILE,
 
@@ -135,9 +135,6 @@ struct std::formatter<frontend::Token::Type>
                 break;
             case frontend::Token::Type::CONST:
                 name = "CONST";
-                break;
-            case frontend::Token::Type::AND:
-                name = "AND";
                 break;
             case frontend::Token::Type::CLASS:
                 name = "CLASS";

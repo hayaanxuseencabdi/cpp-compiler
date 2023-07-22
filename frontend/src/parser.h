@@ -29,7 +29,7 @@ public:
     ast::AbstractSyntaxTree parse() {
         auto block = std::make_unique<ast::Block>();
         while (!is_at_end()) {
-            if (auto node = additive_expression(); node.has_value()) {
+            if (auto node = expression(); node.has_value()) {
                 block->statements_.push_back(std::move(node.value()));
             }
         }
@@ -83,11 +83,68 @@ private:
     }
 
     std::optional<std::unique_ptr<ast::Expression>> expression() {
+        // TODO
+        return equality_expression();
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> bitwise_or_expression() {
+        // TODO
         return std::nullopt;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> assignment_expression() {
+    std::optional<std::unique_ptr<ast::Expression>> bitwise_xor_expression() {
+        // TODO
         return std::nullopt;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> bitwise_and_expression() {
+        // TODO
+        return std::nullopt;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> equality_expression() {
+        auto expr = relational_expression();
+        while (match({Token::Type::EQUAL_EQUAL, Token::Type::BANG_EQUAL})) {
+            auto op = [&]() {
+                switch (previous().type_) {
+                    case Token::Type::EQUAL_EQUAL:
+                        return ast::Operator::Type::EQUAL_TO;
+                    case Token::Type::BANG_EQUAL:
+                        return ast::Operator::Type::NOT_EQUAL_TO;
+                    default:
+                        throw std::logic_error("should be unreachable");
+                }
+            }();
+            auto rhs = relational_expression();
+            expr = std::make_unique<ast::BinaryExpression>(
+                std::move(expr.value()), op, std::move(rhs.value()));
+        }
+        return expr;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> relational_expression() {
+        auto expr = shift_expression();
+        while (match({Token::Type::LESS, Token::Type::LESS_EQUAL,
+                      Token::Type::GREATER, Token::Type::GREATER_EQUAL})) {
+            auto op = [&]() {
+                switch (previous().type_) {
+                    case Token::Type::LESS:
+                        return ast::Operator::Type::LESS_THAN;
+                    case Token::Type::LESS_EQUAL:
+                        return ast::Operator::Type::LESS_THAN_OR_EQUAL_TO;
+                    case Token::Type::GREATER:
+                        return ast::Operator::Type::GREATER_THAN;
+                    case Token::Type::GREATER_EQUAL:
+                        return ast::Operator::Type::GREATER_THAN_OR_EQUAL_TO;
+                    default:
+                        throw std::logic_error("should be unreachable");
+                }
+            }();
+            auto rhs = shift_expression();
+            expr = std::make_unique<ast::BinaryExpression>(
+                std::move(expr.value()), op, std::move(rhs.value()));
+        }
+        return expr;
     }
 
     std::optional<std::unique_ptr<ast::Expression>> shift_expression() {
