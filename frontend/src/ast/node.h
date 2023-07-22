@@ -59,9 +59,9 @@ public:
     T value_;
 };
 
-class UnaryOperation final : public Expression {
+class UnaryExpression final : public Expression {
 public:
-    UnaryOperation(Operator::Type op, std::unique_ptr<Expression> operand)
+    UnaryExpression(Operator::Type op, std::unique_ptr<Expression> operand)
         : operator_(op), operand_(gsl::make_not_null(std::move(operand))) {}
 
     std::string to_string() const override {
@@ -75,10 +75,10 @@ private:
     gsl::not_null<std::unique_ptr<Expression>> operand_;
 };
 
-class BinaryOperation final : public Expression {
+class BinaryExpression final : public Expression {
 public:
-    BinaryOperation(std::unique_ptr<Expression> left, Operator::Type op,
-                    std::unique_ptr<Expression> right)
+    BinaryExpression(std::unique_ptr<Expression> left, Operator::Type op,
+                     std::unique_ptr<Expression> right)
         : left_(gsl::make_not_null(std::move(left))), operator_(op),
           right_(gsl::make_not_null(std::move(right))) {}
 

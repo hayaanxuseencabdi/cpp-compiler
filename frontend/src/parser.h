@@ -82,6 +82,27 @@ private:
                          std::make_format_args(expected_type, peek().type_)));
     }
 
+    std::optional<std::unique_ptr<ast::Expression>> expression() {
+        return std::nullopt;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> assignment_expression() {
+        return std::nullopt;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> shift_expression() {
+        auto expr = additive_expression();
+        while (match({Token::Type::GREATER_GREATER, Token::Type::LESS_LESS})) {
+            auto op = previous().type_ == Token::Type::GREATER_GREATER
+                          ? ast::Operator::Type::BITWISE_RIGHT_SHIFT
+                          : ast::Operator::Type::BITWISE_LEFT_SHIFT;
+            auto rhs = additive_expression();
+            expr = std::make_unique<ast::BinaryExpression>(
+                std::move(expr.value()), op, std::move(rhs.value()));
+        }
+        return expr;
+    }
+
     std::optional<std::unique_ptr<ast::Expression>> additive_expression() {
         auto expr = multiplicative_expression();
         while (match({Token::Type::PLUS, Token::Type::MINUS})) {
@@ -89,7 +110,7 @@ private:
                           ? ast::Operator::Type::ADDITION
                           : ast::Operator::Type::SUBTRACTION;
             auto rhs = multiplicative_expression();
-            expr = std::make_unique<ast::BinaryOperation>(
+            expr = std::make_unique<ast::BinaryExpression>(
                 std::move(expr.value()), op, std::move(rhs.value()));
         }
         return expr;
@@ -113,7 +134,7 @@ private:
                 }
             }();
             auto rhs = primary_expression();
-            expr = std::make_unique<ast::BinaryOperation>(
+            expr = std::make_unique<ast::BinaryExpression>(
                 std::move(expr.value()), op, std::move(rhs.value()));
         }
         return expr;

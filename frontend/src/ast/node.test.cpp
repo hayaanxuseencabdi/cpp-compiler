@@ -20,11 +20,12 @@ TEST(Node, UnaryOperation) {
     auto op = frontend::ast::Operator::Type::UNARY_PLUS;
     auto operand = std::make_unique<Double>(3.15);
 
-    auto unary_op = frontend::ast::create_node<frontend::ast::UnaryOperation>(
-        op, std::move(operand));
+    auto unary_expr =
+        frontend::ast::create_node<frontend::ast::UnaryExpression>(
+            op, std::move(operand));
 
     EXPECT_STREQ(
-        unary_op->to_string().c_str(),
+        unary_expr->to_string().c_str(),
         "UnaryOperation(operator: UNARY_PLUS, operand: Literal(value: 3.15))");
 }
 
@@ -33,10 +34,10 @@ TEST(Node, BinaryOperation) {
     auto op = frontend::ast::Operator::Type::ADDITION;
     auto right = std::make_unique<Double>(3.15);
 
-    auto bin_op = frontend::ast::create_node<frontend::ast::BinaryOperation>(
+    auto bin_expr = frontend::ast::create_node<frontend::ast::BinaryExpression>(
         std::move(left), op, std::move(right));
 
-    EXPECT_STREQ(bin_op->to_string().c_str(),
+    EXPECT_STREQ(bin_expr->to_string().c_str(),
                  "BinaryOperation(left: Literal(value: 3.14), operation: "
                  "ADDITION, right: Literal(value: 3.15))");
 }

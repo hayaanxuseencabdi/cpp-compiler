@@ -13,7 +13,7 @@ struct Token {
         // Single-character tokens.
         LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, PERCENT,
         // One or two character tokens.
-        BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
+        BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_GREATER, GREATER_EQUAL, LESS, LESS_LESS, LESS_EQUAL,
         // Literals.
         IDENTIFIER, STRING, NUMBER,
         // Keywords.
@@ -109,10 +109,16 @@ struct std::formatter<frontend::Token::Type>
             case frontend::Token::Type::GREATER:
                 name = "GREATER";
                 break;
+            case frontend::Token::Type::GREATER_GREATER:
+                name = "GREATER_GREATER";
+                break;
             case frontend::Token::Type::GREATER_EQUAL:
                 name = "GREATER_EQUAL";
                 break;
             case frontend::Token::Type::LESS:
+                name = "LESS";
+                break;
+            case frontend::Token::Type::LESS_LESS:
                 name = "LESS";
                 break;
             case frontend::Token::Type::LESS_EQUAL:

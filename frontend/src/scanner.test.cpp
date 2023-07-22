@@ -25,12 +25,12 @@ void compare_tokens(const std::vector<Token>& parsed_tokens,
 }
 
 TEST(ScannerTests, Tokens) {
-    frontend::Scanner scanner("[]]]]!=[[{{{==[=");
+    frontend::Scanner scanner("[]<>]!=[[{{{==[=");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::LEFT_BRACKET),
         Token(1, Token::Type::RIGHT_BRACKET),
-        Token(1, Token::Type::RIGHT_BRACKET),
-        Token(1, Token::Type::RIGHT_BRACKET),
+        Token(1, Token::Type::LESS),
+        Token(1, Token::Type::GREATER),
         Token(1, Token::Type::RIGHT_BRACKET),
         Token(1, Token::Type::BANG_EQUAL),
         Token(1, Token::Type::LEFT_BRACKET),
@@ -100,7 +100,7 @@ TEST(ScannerTests, Identifier) {
 TEST(ScannerTests, ReservedWords) {
     frontend::Scanner scanner(R"(
         if (x <= 5) {
-            return 2;
+            return (2 >> 2);
         }
 
         return false;
@@ -116,7 +116,11 @@ TEST(ScannerTests, ReservedWords) {
         Token(2, Token::Type::RIGHT_PAREN),
         Token(2, Token::Type::LEFT_BRACE),
         Token(3, Token::Type::RETURN),
+        Token(3, Token::Type::LEFT_PAREN),
         Token(3, Token::Type::NUMBER, "2"),
+        Token(3, Token::Type::GREATER_GREATER),
+        Token(3, Token::Type::NUMBER, "2"),
+        Token(3, Token::Type::RIGHT_PAREN),
         Token(3, Token::Type::SEMICOLON),
         Token(4, Token::Type::RIGHT_BRACE),
         Token(6, Token::Type::RETURN),

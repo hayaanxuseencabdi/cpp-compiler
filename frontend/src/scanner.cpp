@@ -174,11 +174,15 @@ std::optional<Token> Scanner::scan_token() {
             return create_simple_token(match('=') ? Token::Type::EQUAL_EQUAL
                                                   : Token::Type::EQUAL);
         case '<':
-            return create_simple_token(match('=') ? Token::Type::LESS_EQUAL
-                                                  : Token::Type::LESS);
+            return create_simple_token(
+                match('=') ? Token::Type::LESS_EQUAL
+                           : (match('<') ? Token::Type::LESS_LESS
+                                         : Token::Type::LESS));
         case '>':
-            return create_simple_token(match('=') ? Token::Type::GREATER_EQUAL
-                                                  : Token::Type::GREATER);
+            return create_simple_token(
+                match('=') ? Token::Type::GREATER_EQUAL
+                           : (match('>') ? Token::Type::GREATER_GREATER
+                                         : Token::Type::GREATER));
         case '/':
             if (match('/')) {
                 while (!is_at_end() && peek() != '\n') {
