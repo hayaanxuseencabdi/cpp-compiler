@@ -4,23 +4,32 @@
 #include <initializer_list>
 #include <memory>
 #include <optional>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "ast/ast.h"
 #include "ast/node.h"
+#include "ast/operator.h"
 #include "token.h"
 
 namespace frontend {
 
 class Parser {
 public:
-    Parser(std::vector<Token> tokens) : tokens_(std::move(tokens)) {}
+    Parser(std::vector<Token> tokens) : tokens_(std::move(tokens)) {
+        if (tokens_.empty()) {
+            throw std::logic_error("Tokens were supplied");
+        }
+        if (tokens_.back().type_ != Token::Type::END_OF_FILE) {
+            throw std::logic_error("No final EOF marker");
+        }
+    }
 
     ast::AbstractSyntaxTree parse() {
         auto block = std::make_unique<ast::Block>();
         while (!is_at_end()) {
-            auto node = primary();
-            if (node.has_value()) {
+            if (auto node = additive_expression(); node.has_value()) {
                 block->statements_.push_back(std::move(node.value()));
             }
         }
@@ -64,7 +73,53 @@ private:
         return false;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> primary() {
+    Token consume(Token::Type expected_type) {
+        if (check(expected_type)) {
+            return advance();
+        }
+        throw std::logic_error(
+            std::vformat("Expected {} but encountered {} instead",
+                         std::make_format_args(expected_type, peek().type_)));
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> additive_expression() {
+        auto expr = multiplicative_expression();
+        while (match({Token::Type::PLUS, Token::Type::MINUS})) {
+            auto op = previous().type_ == Token::Type::PLUS
+                          ? ast::Operator::Type::ADDITION
+                          : ast::Operator::Type::SUBTRACTION;
+            auto rhs = multiplicative_expression();
+            expr = std::make_unique<ast::BinaryOperation>(
+                std::move(expr.value()), op, std::move(rhs.value()));
+        }
+        return expr;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>>
+    multiplicative_expression() {
+        auto expr = primary_expression();
+        while (match(
+            {Token::Type::STAR, Token::Type::SLASH, Token::Type::PERCENT})) {
+            auto op = [&]() {
+                switch (previous().type_) {
+                    case Token::Type::STAR:
+                        return ast::Operator::Type::MULTIPLICATION;
+                    case Token::Type::SLASH:
+                        return ast::Operator::Type::DIVISION;
+                    case Token::Type::PERCENT:
+                        return ast::Operator::Type::REMAINDER;
+                    default:
+                        throw std::logic_error("should be unreachable");
+                }
+            }();
+            auto rhs = primary_expression();
+            expr = std::make_unique<ast::BinaryOperation>(
+                std::move(expr.value()), op, std::move(rhs.value()));
+        }
+        return expr;
+    }
+
+    std::optional<std::unique_ptr<ast::Expression>> primary_expression() {
         using Bool = ast::Literal<bool>;
         using String = ast::Literal<std::string>;
 
@@ -76,15 +131,20 @@ private:
         }
 
         if (match({Token::Type::STRING, Token::Type::NUMBER})) {
-            auto token = previous();
-            if (!token.lexeme_.has_value()) {
+            if (auto token = previous(); token.lexeme_.has_value()) {
+                return std::make_unique<String>(token.lexeme_.value());
+            } else {
                 // TODO: error
             }
-            return std::make_unique<String>(token.lexeme_.value());
         }
 
         if (match({Token::Type::LEFT_PAREN})) {
-            // TODO:
+            auto inner_expression = expression();
+            if (!inner_expression.has_value()) {
+                // TODO: error
+            }
+            consume(Token::Type::RIGHT_PAREN);
+            return inner_expression;
         }
 
         return std::nullopt;

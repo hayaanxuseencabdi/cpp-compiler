@@ -11,7 +11,7 @@ struct Token {
         // clang-format off
 
         // Single-character tokens.
-        LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, ASTERISK,
+        LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_BRACKET, RIGHT_BRACKET, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, PERCENT,
         // One or two character tokens.
         BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
         // Literals.
@@ -88,8 +88,11 @@ struct std::formatter<frontend::Token::Type>
             case frontend::Token::Type::SLASH:
                 name = "SLASH";
                 break;
-            case frontend::Token::Type::ASTERISK:
-                name = "ASTERISK";
+            case frontend::Token::Type::STAR:
+                name = "STAR";
+                break;
+            case frontend::Token::Type::PERCENT:
+                name = "PERCENT";
                 break;
             case frontend::Token::Type::BANG:
                 name = "BANG";

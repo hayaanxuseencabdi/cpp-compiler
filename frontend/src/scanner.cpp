@@ -159,6 +159,14 @@ std::optional<Token> Scanner::scan_token() {
             return create_simple_token(Token::Type::RIGHT_BRACKET);
         case ';':
             return create_simple_token(Token::Type::SEMICOLON);
+        case '+':
+            return create_simple_token(Token::Type::PLUS);
+        case '-':
+            return create_simple_token(Token::Type::MINUS);
+        case '*':
+            return create_simple_token(Token::Type::STAR);
+        case '%':
+            return create_simple_token(Token::Type::PERCENT);
         case '!':
             return create_simple_token(match('=') ? Token::Type::BANG_EQUAL
                                                   : Token::Type::BANG);
