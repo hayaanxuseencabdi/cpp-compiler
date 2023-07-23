@@ -29,8 +29,8 @@ public:
     ast::AbstractSyntaxTree parse() {
         auto block = std::make_unique<ast::Block>();
         while (!is_at_end()) {
-            if (auto node = expression(); node.has_value()) {
-                block->statements_.push_back(std::move(node.value()));
+            if (auto node = expression(); node != nullptr) {
+                block->statements_.push_back(std::move(node));
             }
         }
         return ast::AbstractSyntaxTree(std::move(block));
@@ -82,27 +82,27 @@ private:
                          std::make_format_args(expected_type, peek().type_)));
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> expression() {
+    std::unique_ptr<ast::Expression> expression() {
         // TODO
         return equality_expression();
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> bitwise_or_expression() {
+    std::unique_ptr<ast::Expression> bitwise_or_expression() {
         // TODO
-        return std::nullopt;
+        return nullptr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> bitwise_xor_expression() {
+    std::unique_ptr<ast::Expression> bitwise_xor_expression() {
         // TODO
-        return std::nullopt;
+        return nullptr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> bitwise_and_expression() {
+    std::unique_ptr<ast::Expression> bitwise_and_expression() {
         // TODO
-        return std::nullopt;
+        return nullptr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> equality_expression() {
+    std::unique_ptr<ast::Expression> equality_expression() {
         auto expr = relational_expression();
         while (match({Token::Type::EQUAL_EQUAL, Token::Type::BANG_EQUAL})) {
             auto op = [&]() {
@@ -116,13 +116,13 @@ private:
                 }
             }();
             auto rhs = relational_expression();
-            expr = std::make_unique<ast::BinaryExpression>(
-                std::move(expr.value()), op, std::move(rhs.value()));
+            expr = std::make_unique<ast::BinaryExpression>(std::move(expr), op,
+                                                           std::move(rhs));
         }
         return expr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> relational_expression() {
+    std::unique_ptr<ast::Expression> relational_expression() {
         auto expr = shift_expression();
         while (match({Token::Type::LESS, Token::Type::LESS_EQUAL,
                       Token::Type::GREATER, Token::Type::GREATER_EQUAL})) {
@@ -141,40 +141,39 @@ private:
                 }
             }();
             auto rhs = shift_expression();
-            expr = std::make_unique<ast::BinaryExpression>(
-                std::move(expr.value()), op, std::move(rhs.value()));
+            expr = std::make_unique<ast::BinaryExpression>(std::move(expr), op,
+                                                           std::move(rhs));
         }
         return expr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> shift_expression() {
+    std::unique_ptr<ast::Expression> shift_expression() {
         auto expr = additive_expression();
         while (match({Token::Type::GREATER_GREATER, Token::Type::LESS_LESS})) {
             auto op = previous().type_ == Token::Type::GREATER_GREATER
                           ? ast::Operator::Type::BITWISE_RIGHT_SHIFT
                           : ast::Operator::Type::BITWISE_LEFT_SHIFT;
             auto rhs = additive_expression();
-            expr = std::make_unique<ast::BinaryExpression>(
-                std::move(expr.value()), op, std::move(rhs.value()));
+            expr = std::make_unique<ast::BinaryExpression>(std::move(expr), op,
+                                                           std::move(rhs));
         }
         return expr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> additive_expression() {
+    std::unique_ptr<ast::Expression> additive_expression() {
         auto expr = multiplicative_expression();
         while (match({Token::Type::PLUS, Token::Type::MINUS})) {
             auto op = previous().type_ == Token::Type::PLUS
                           ? ast::Operator::Type::ADDITION
                           : ast::Operator::Type::SUBTRACTION;
             auto rhs = multiplicative_expression();
-            expr = std::make_unique<ast::BinaryExpression>(
-                std::move(expr.value()), op, std::move(rhs.value()));
+            expr = std::make_unique<ast::BinaryExpression>(std::move(expr), op,
+                                                           std::move(rhs));
         }
         return expr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>>
-    multiplicative_expression() {
+    std::unique_ptr<ast::Expression> multiplicative_expression() {
         auto expr = primary_expression();
         while (match(
             {Token::Type::STAR, Token::Type::SLASH, Token::Type::PERCENT})) {
@@ -191,13 +190,13 @@ private:
                 }
             }();
             auto rhs = primary_expression();
-            expr = std::make_unique<ast::BinaryExpression>(
-                std::move(expr.value()), op, std::move(rhs.value()));
+            expr = std::make_unique<ast::BinaryExpression>(std::move(expr), op,
+                                                           std::move(rhs));
         }
         return expr;
     }
 
-    std::optional<std::unique_ptr<ast::Expression>> primary_expression() {
+    std::unique_ptr<ast::Expression> primary_expression() {
         using Bool = ast::Literal<bool>;
         using String = ast::Literal<std::string>;
 
@@ -218,14 +217,14 @@ private:
 
         if (match({Token::Type::LEFT_PAREN})) {
             auto inner_expression = expression();
-            if (!inner_expression.has_value()) {
+            if (inner_expression == nullptr) {
                 // TODO: error
             }
             consume(Token::Type::RIGHT_PAREN);
             return inner_expression;
         }
 
-        return std::nullopt;
+        return nullptr;
     }
 
     std::size_t current_ = 0;
