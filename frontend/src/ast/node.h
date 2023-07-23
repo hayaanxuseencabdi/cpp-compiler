@@ -44,7 +44,9 @@ public:
     std::vector<std::unique_ptr<Node>> statements_{};
 };
 
-class Expression : public Node {};
+class Statement : public Node {};
+// FIXME: unsure if an ExpressionStatement node is needed or wise
+class Expression : public Statement {};
 
 template <typename T>
 struct Literal final : public Expression {
@@ -93,6 +95,25 @@ private:
     gsl::not_null<std::unique_ptr<Expression>> left_;
     Operator::Type operator_;
     gsl::not_null<std::unique_ptr<Expression>> right_;
+};
+
+class IfStatement final : public Statement {
+public:
+    IfStatement(std::unique_ptr<Expression> condition,
+                std::unique_ptr<Statement> statement)
+        : condition_(gsl::make_not_null(std::move(condition))),
+          statement_(gsl::make_not_null(std::move(statement))) {}
+
+    std::string to_string() const override {
+        return std::vformat("IfStatement(condition: {}, statement: {})",
+                            std::make_format_args(condition_->to_string(),
+                                                  statement_->to_string()));
+    }
+
+private:
+    gsl::not_null<std::unique_ptr<Expression>> condition_;
+    // TODO: should have a Statement node instead
+    gsl::not_null<std::unique_ptr<Statement>> statement_;
 };
 
 } // namespace frontend::ast

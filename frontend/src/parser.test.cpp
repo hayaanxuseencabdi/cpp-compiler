@@ -130,11 +130,23 @@ TEST(Parser, ParseEmptyExpressionStatement) {
 }
 
 TEST(Parser, ParseSimpleIfStatement) {
-    frontend::Scanner scanner(R"(if (x <= 5) { return 2; })");
+    frontend::Scanner scanner(R"(if (2 <= 5) 3;)");
     frontend::Parser parser(scanner.scan_tokens());
 
-    // TODO
-    FAIL();
+    auto ast = parser.parse();
+
+    EXPECT_STREQ(ast.to_string().c_str(),
+                 // clang-format off
+         "AST(root: Block(statements: ["
+            "IfStatement("
+                "condition: BinaryOperation("
+                    "left: Literal(value: 2), "
+                    "operation: LESS_THAN_OR_EQUAL_TO, "
+                    "right: Literal(value: 5)), "
+                    "statement: Literal(value: 3)"
+         ")]))"
+                 // clang-format on
+    );
 }
 
 } // namespace

@@ -29,7 +29,7 @@ public:
     ast::AbstractSyntaxTree parse() {
         auto block = std::make_unique<ast::Block>();
         while (!is_at_end()) {
-            if (auto node = expression_statement(); node != nullptr) {
+            if (auto node = statement(); node != nullptr) {
                 block->statements_.push_back(std::move(node));
             }
         }
@@ -49,11 +49,10 @@ private:
         return peek().type_ == Token::Type::END_OF_FILE;
     }
 
-    Token advance() {
+    void advance() {
         if (!is_at_end()) {
             ++current_;
         }
-        return previous();
     }
 
     bool check(Token::Type expected_type) {
@@ -70,16 +69,40 @@ private:
         return false;
     }
 
-    Token consume(Token::Type expected_type) {
-        if (check(expected_type)) {
-            return advance();
+    void consume(Token::Type expected_type) {
+        if (peek().type_ != expected_type) {
+            throw std::logic_error(std::vformat(
+                "Expected {} but encountered {} instead",
+                std::make_format_args(expected_type, peek().to_string())));
         }
-        throw std::logic_error(
-            std::vformat("Expected {} but encountered {} instead",
-                         std::make_format_args(expected_type, peek().type_)));
+        advance();
     }
 
-    std::unique_ptr<ast::Expression> expression_statement() {
+    std::unique_ptr<ast::Statement> statement() {
+        // selection-statement
+        if (match({Token::Type::IF})) {
+            consume(Token::Type::LEFT_PAREN);
+            auto condition = expression();
+            consume(Token::Type::RIGHT_PAREN);
+            auto stmt = statement();
+            return std::make_unique<ast::IfStatement>(std::move(condition),
+                                                      std::move(stmt));
+        }
+
+        // TODO: compound statement
+        if (match({Token::Type::LEFT_BRACE})) {
+            while (!match({Token::Type::RIGHT_BRACE})) {
+                // TODO: add statements to
+                advance();
+            }
+            consume(Token::Type::RIGHT_BRACE);
+            return nullptr;
+        }
+
+        return expression_statement();
+    }
+
+    std::unique_ptr<ast::Statement> expression_statement() {
         auto expr = expression();
         consume(Token::Type::SEMICOLON);
         return expr;
