@@ -29,7 +29,7 @@ public:
     ast::AbstractSyntaxTree parse() {
         auto block = std::make_unique<ast::Block>();
         while (!is_at_end()) {
-            if (auto node = expression(); node != nullptr) {
+            if (auto node = expression_statement(); node != nullptr) {
                 block->statements_.push_back(std::move(node));
             }
         }
@@ -57,9 +57,6 @@ private:
     }
 
     bool check(Token::Type expected_type) {
-        if (is_at_end()) {
-            return false;
-        }
         return peek().type_ == expected_type;
     }
 
@@ -80,6 +77,12 @@ private:
         throw std::logic_error(
             std::vformat("Expected {} but encountered {} instead",
                          std::make_format_args(expected_type, peek().type_)));
+    }
+
+    std::unique_ptr<ast::Expression> expression_statement() {
+        auto expr = expression();
+        consume(Token::Type::SEMICOLON);
+        return expr;
     }
 
     std::unique_ptr<ast::Expression> expression() {
