@@ -10,8 +10,13 @@ namespace {
 
 using Double = frontend::ast::Literal<double>;
 
+template <typename Node, typename... Args>
+constexpr gsl::not_null<std::unique_ptr<Node>> create_node(Args&&... args) {
+    return gsl::not_null(std::make_unique<Node>(std::forward<Args>(args)...));
+}
+
 TEST(Node, CreateLiteral) {
-    auto num = frontend::ast::create_node<Double>(3.14);
+    auto num = create_node<Double>(3.14);
 
     EXPECT_DOUBLE_EQ(num->value_, 3.14);
 }
@@ -21,8 +26,7 @@ TEST(Node, CreateUnaryExpression) {
     auto operand = std::make_unique<Double>(3.15);
 
     auto unary_expr =
-        frontend::ast::create_node<frontend::ast::UnaryExpression>(
-            op, std::move(operand));
+        create_node<frontend::ast::UnaryExpression>(op, std::move(operand));
 
     EXPECT_STREQ(
         unary_expr->to_string().c_str(),
@@ -34,7 +38,7 @@ TEST(Node, CreateBinaryExpression) {
     auto op = frontend::ast::Operator::Type::ADDITION;
     auto right = std::make_unique<Double>(3.15);
 
-    auto bin_expr = frontend::ast::create_node<frontend::ast::BinaryExpression>(
+    auto bin_expr = create_node<frontend::ast::BinaryExpression>(
         std::move(left), op, std::move(right));
 
     // clang-format off

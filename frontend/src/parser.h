@@ -129,7 +129,7 @@ private:
             // TODO: handle noops gracefully
         }
         consume(Token::Type::SEMICOLON);
-        return expr;
+        return std::make_unique<ast::ExpressionStatement>(std::move(expr));
     }
 
     std::unique_ptr<ast::Expression> expression() {

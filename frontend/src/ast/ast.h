@@ -13,9 +13,7 @@ public:
 
     std::string to_string() const {
         return std::vformat("AST(root: {})",
-                            std::make_format_args(root_ != nullptr
-                                                      ? root_->to_string()
-                                                      : "None"));
+                            std::make_format_args(root_.get()));
     }
 
 private:

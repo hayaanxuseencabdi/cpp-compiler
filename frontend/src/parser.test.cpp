@@ -1,8 +1,9 @@
+#include <format>
+
+#include <gtest/gtest.h>
+
 #include "parser.h"
 #include "scanner.h"
-
-#include <format>
-#include <gtest/gtest.h>
 
 namespace {
 
@@ -15,10 +16,9 @@ TEST(Parser, ParseNumbers) {
     EXPECT_STREQ(ast.to_string().c_str(),
                  // clang-format off
         "AST(root: CompoundStatement(statements: ["
-            "Literal(value: 43.3242), "
-            "Literal(value: 4.395), "
-            "Literal(value: 986.345)"
-        "]))"
+            "ExpressionStatement(expression: Literal(value: 43.3242)), "
+            "ExpressionStatement(expression: Literal(value: 4.395)), "
+            "ExpressionStatement(expression: Literal(value: 986.345))]))"
             // clang-format off
             );
 }
@@ -32,7 +32,7 @@ TEST(Parser, ParseMultiplicativeAndAdditiveExpressions) {
     EXPECT_STREQ(ast.to_string().c_str(),
                  // clang-format off
         "AST(root: CompoundStatement(statements: ["
-            "BinaryExpression("
+            "ExpressionStatement(expression: BinaryExpression("
                 "left: BinaryExpression("
                     "left: Literal(value: 4), "
                     "operation: REMAINDER, "
@@ -42,8 +42,7 @@ TEST(Parser, ParseMultiplicativeAndAdditiveExpressions) {
                 "right: BinaryExpression("
                     "left: Literal(value: 5), "
                     "operation: MULTIPLICATION, "
-                    "right: Literal(value: 2)"
-        "))]))"
+                    "right: Literal(value: 2))))]))"
                  // clang-format on
     );
 }
@@ -57,14 +56,13 @@ TEST(Parser, ParseShiftAndAdditiveExpressions) {
     EXPECT_STREQ(ast.to_string().c_str(),
                  // clang-format off
         "AST(root: CompoundStatement(statements: ["
-            "BinaryExpression("
+            "ExpressionStatement(expression: BinaryExpression("
                 "left: Literal(value: 4), "
                 "operation: BITWISE_LEFT_SHIFT, "
                 "right: BinaryExpression("
                     "left: Literal(value: 3), "
                     "operation: ADDITION, "
-                    "right: Literal(value: 5)"
-        "))]))"
+                    "right: Literal(value: 5))))]))"
                  // clang-format on
     );
 }
@@ -78,7 +76,7 @@ TEST(Parser, ParseRelationalAndAdditiveExpressions) {
     EXPECT_STREQ(ast.to_string().c_str(),
                  // clang-format off
         "AST(root: CompoundStatement(statements: ["
-            "BinaryExpression("
+            "ExpressionStatement(expression: BinaryExpression("
                 "left: BinaryExpression("
                     "left: Literal(value: 4), "
                     "operation: SUBTRACTION, "
@@ -88,8 +86,7 @@ TEST(Parser, ParseRelationalAndAdditiveExpressions) {
                 "right: BinaryExpression("
                     "left: Literal(value: 3), "
                     "operation: ADDITION, "
-                    "right: Literal(value: 5)"
-        "))]))"
+                    "right: Literal(value: 5))))]))"
                  // clang-format on
     );
 }
@@ -103,7 +100,7 @@ TEST(Parser, ParseEqualityAndAdditiveExpressions) {
     EXPECT_STREQ(ast.to_string().c_str(),
                  // clang-format off
         "AST(root: CompoundStatement(statements: ["
-            "BinaryExpression("
+            "ExpressionStatement(expression: BinaryExpression("
                 "left: BinaryExpression("
                     "left: Literal(value: 4), "
                     "operation: SUBTRACTION, "
@@ -113,8 +110,7 @@ TEST(Parser, ParseEqualityAndAdditiveExpressions) {
                 "right: BinaryExpression("
                     "left: Literal(value: 3), "
                     "operation: ADDITION, "
-                    "right: Literal(value: 1)"
-        "))]))"
+                    "right: Literal(value: 1))))]))"
                  // clang-format on
     );
 }
@@ -125,9 +121,15 @@ TEST(Parser, ParseEmptyExpressionStatement) {
 
     auto ast = parser.parse();
 
-    EXPECT_STREQ(
-        ast.to_string().c_str(),
-        "AST(root: CompoundStatement(statements: [Literal(value: 34)]))");
+    EXPECT_STREQ(ast.to_string().c_str(),
+                 // clang-format off
+        "AST(root: CompoundStatement(statements: ["
+            "ExpressionStatement(expression: None), "
+            "ExpressionStatement(expression: None), "
+            "ExpressionStatement(expression: Literal(value: 34)), "
+            "ExpressionStatement(expression: None)]))"
+                 // clang-format on
+    );
 }
 
 TEST(Parser, ParseSimpleIfStatement) {
@@ -144,9 +146,8 @@ TEST(Parser, ParseSimpleIfStatement) {
                     "left: Literal(value: 2), "
                     "operation: LESS_THAN_OR_EQUAL_TO, "
                     "right: Literal(value: 5)), "
-                "then: Literal(value: 3), "
-                "else: None"
-         ")]))"
+                "then: ExpressionStatement(expression: Literal(value: 3)), "
+                "else: None)]))"
                  // clang-format on
     );
 }
@@ -168,10 +169,9 @@ TEST(Parser, ParseSimpleIfElseStatement) {
                     "left: Literal(value: 2), "
                     "operation: LESS_THAN_OR_EQUAL_TO, "
                     "right: Literal(value: 5)), "
-                "then: Literal(value: 3), "
+                "then: ExpressionStatement(expression: Literal(value: 3)), "
                 "else: CompoundStatement(statements: ["
-                    "Literal(value: 4)])"
-         ")]))"
+                        "ExpressionStatement(expression: Literal(value: 4))]))]))"
                  // clang-format on
     );
 }
@@ -179,8 +179,8 @@ TEST(Parser, ParseSimpleIfElseStatement) {
 TEST(Parser, ParseIfElseIfElseIfElseStatement) {
     frontend::Scanner scanner(R"(
         if (2 <= 5) 3;
-        else if (0 == 1) { 4; }
-        else if (1 == 1) 2;
+        else if (0 == 1) 4;
+        else if (1 == 1) ;
         else { 43; }
     )");
     frontend::Parser parser(scanner.scan_tokens());
@@ -195,20 +195,20 @@ TEST(Parser, ParseIfElseIfElseIfElseStatement) {
                     "left: Literal(value: 2), "
                     "operation: LESS_THAN_OR_EQUAL_TO, "
                     "right: Literal(value: 5)), "
-                "then: Literal(value: 3), "
+                "then: ExpressionStatement(expression: Literal(value: 3)), "
                 "else: IfStatement("
                     "condition: BinaryExpression("
                         "left: Literal(value: 0), "
                         "operation: EQUAL_TO, "
                         "right: Literal(value: 1)), "
-                    "then: CompoundStatement(statements: [Literal(value: 4)]), "
+                    "then: ExpressionStatement(expression: Literal(value: 4)), "
                     "else: IfStatement("
                         "condition: BinaryExpression("
                             "left: Literal(value: 1), "
                             "operation: EQUAL_TO, "
                             "right: Literal(value: 1)), "
-                        "then: Literal(value: 2), "
-                        "else: CompoundStatement(statements: [Literal(value: 43)])"
+                        "then: ExpressionStatement(expression: None), "
+                        "else: CompoundStatement(statements: [ExpressionStatement(expression: Literal(value: 43))])"
                     ")"
              "))]))"
                  // clang-format on
@@ -233,14 +233,14 @@ TEST(Parser, ParseCompoundStatements) {
                  // clang-format off
          "AST(root: CompoundStatement(statements: ["
             "CompoundStatement(statements: []), "
+
             "CompoundStatement(statements: ["
-                "Literal(value: 54), "
-                "BinaryExpression(left: "
-                    "Literal(value: 4), "
+                "ExpressionStatement(expression: None), "
+                "ExpressionStatement(expression: Literal(value: 54)), "
+                "ExpressionStatement(expression: BinaryExpression("
+                    "left: Literal(value: 4), "
                     "operation: LESS_THAN, "
-                    "right: Literal(value: 2)"
-            ")])"
-        "]))"
+                    "right: Literal(value: 2)))])]))"
                  // clang-format on
     );
 }
@@ -266,23 +266,23 @@ TEST(Parser, ParseDifferentTypesOfStatements) {
                  // clang-format off
          "AST(root: CompoundStatement(statements: ["
             "CompoundStatement(statements: []), "
-            "Literal(value: 4), "
-            "BinaryExpression(left: "
-                "Literal(value: 2), "
+            "ExpressionStatement(expression: None), "
+            "ExpressionStatement(expression: Literal(value: 4)), "
+            "ExpressionStatement(expression: BinaryExpression("
+                "left: Literal(value: 2), "
                 "operation: ADDITION, "
-                "right: Literal(value: 4)), "
-            "BinaryExpression(left: "
-                "Literal(value: 1), "
+                "right: Literal(value: 4))), "
+            "ExpressionStatement(expression: BinaryExpression("
+                "left: Literal(value: 1), "
                 "operation: DIVISION, "
-                "right: Literal(value: 1)), "
+                "right: Literal(value: 1))), "
             "CompoundStatement(statements: ["
-                "Literal(value: 54), "
-                "BinaryExpression(left: "
-                    "Literal(value: 4), "
+                "ExpressionStatement(expression: None), "
+                "ExpressionStatement(expression: Literal(value: 54)), "
+                "ExpressionStatement(expression: BinaryExpression("
+                    "left: Literal(value: 4), "
                     "operation: LESS_THAN, "
-                    "right: Literal(value: 2)"
-            ")])"
-        "]))"
+                    "right: Literal(value: 2)))])]))"
                  // clang-format on
     );
 }
