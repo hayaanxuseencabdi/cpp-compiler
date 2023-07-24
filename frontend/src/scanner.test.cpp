@@ -24,7 +24,7 @@ void compare_tokens(const std::vector<Token>& parsed_tokens,
     }
 }
 
-TEST(ScannerTests, Tokens) {
+TEST(Scanner, Tokens) {
     frontend::Scanner scanner("[]<>]!=[[{{{==[=");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::LEFT_BRACKET),
@@ -49,7 +49,7 @@ TEST(ScannerTests, Tokens) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, Strings) {
+TEST(Scanner, Strings) {
     frontend::Scanner scanner(R"(["test"])");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::LEFT_BRACKET),
@@ -63,7 +63,7 @@ TEST(ScannerTests, Strings) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, Numbers) {
+TEST(Scanner, Numbers) {
     frontend::Scanner scanner("[542] [342.024]");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::LEFT_BRACKET),
@@ -80,7 +80,7 @@ TEST(ScannerTests, Numbers) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, Identifier) {
+TEST(Scanner, Identifier) {
     frontend::Scanner scanner("[542] point2 abc _ab");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::LEFT_BRACKET),
@@ -97,7 +97,7 @@ TEST(ScannerTests, Identifier) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, ReservedWords) {
+TEST(Scanner, ReservedWords) {
     frontend::Scanner scanner(R"(
         if (x <= 5) {
             return (2 >> 2);
@@ -139,7 +139,7 @@ TEST(ScannerTests, ReservedWords) {
     compare_tokens(parsed_tokens, expected_tokens);
 }
 
-TEST(ScannerTests, UnexpectedTokens) {
+TEST(Scanner, UnexpectedTokens) {
     frontend::Scanner scanner("_|_[|_= !=");
     const std::vector<frontend::Token> expected_tokens{
         Token(1, Token::Type::IDENTIFIER, "_"),

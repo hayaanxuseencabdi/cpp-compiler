@@ -23,27 +23,6 @@ public:
     virtual ~Node() = default;
 };
 
-class Block final : public Node {
-public:
-    std::string to_string() const override {
-        std::string str;
-        if (!statements_.empty()) {
-            str = std::vformat(
-                "{}", std::make_format_args(statements_.front()->to_string()));
-            for (std::size_t i = 1; i < statements_.size(); ++i) {
-                str += std::vformat(
-                    ", {}", std::make_format_args(statements_[i]->to_string()));
-            }
-        }
-
-        return std::vformat("Block(statements: [{}])",
-                            std::make_format_args(str));
-    }
-
-    // TODO: should be wrapped within gsl::not_null
-    std::vector<std::unique_ptr<Node>> statements_{};
-};
-
 class Statement : public Node {};
 // FIXME: unsure if an ExpressionStatement node is needed or wise
 class Expression : public Statement {};
@@ -68,7 +47,7 @@ public:
 
     std::string to_string() const override {
         return std::vformat(
-            "UnaryOperation(operator: {}, operand: {})",
+            "UnaryExpression(operator: {}, operand: {})",
             std::make_format_args(operator_, operand_->to_string()));
     }
 
@@ -86,7 +65,7 @@ public:
 
     std::string to_string() const override {
         return std::vformat(
-            "BinaryOperation(left: {}, operation: {}, right: {})",
+            "BinaryExpression(left: {}, operation: {}, right: {})",
             std::make_format_args(left_->to_string(), operator_,
                                   right_->to_string()));
     }
@@ -114,6 +93,30 @@ private:
     gsl::not_null<std::unique_ptr<Expression>> condition_;
     // TODO: should have a Statement node instead
     gsl::not_null<std::unique_ptr<Statement>> statement_;
+};
+
+class CompoundStatement final : public Statement {
+public:
+    CompoundStatement(std::vector<std::unique_ptr<Statement>>&& statements)
+        : statements_(std::move(statements)) {}
+
+    std::string to_string() const override {
+        std::string str;
+        if (!statements_.empty()) {
+            str = std::vformat(
+                "{}", std::make_format_args(statements_.front()->to_string()));
+            for (std::size_t i = 1; i < statements_.size(); ++i) {
+                str += std::vformat(
+                    ", {}", std::make_format_args(statements_[i]->to_string()));
+            }
+        }
+
+        return std::vformat("CompoundStatement(statements: [{}])",
+                            std::make_format_args(str));
+    }
+
+    // TODO: should be wrapped within gsl::not_null
+    std::vector<std::unique_ptr<Statement>> statements_;
 };
 
 } // namespace frontend::ast

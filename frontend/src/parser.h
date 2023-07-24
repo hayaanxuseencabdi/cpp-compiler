@@ -27,12 +27,14 @@ public:
     }
 
     ast::AbstractSyntaxTree parse() {
-        auto block = std::make_unique<ast::Block>();
+        std::vector<std::unique_ptr<ast::Statement>> statements;
         while (!is_at_end()) {
             if (auto node = statement(); node != nullptr) {
-                block->statements_.push_back(std::move(node));
+                statements.emplace_back(std::move(node));
             }
         }
+        auto block =
+            std::make_unique<ast::CompoundStatement>(std::move(statements));
         return ast::AbstractSyntaxTree(std::move(block));
     }
 
@@ -80,26 +82,38 @@ private:
 
     std::unique_ptr<ast::Statement> statement() {
         // selection-statement
-        if (match({Token::Type::IF})) {
-            consume(Token::Type::LEFT_PAREN);
-            auto condition = expression();
-            consume(Token::Type::RIGHT_PAREN);
-            auto stmt = statement();
-            return std::make_unique<ast::IfStatement>(std::move(condition),
-                                                      std::move(stmt));
+        if (check(Token::Type::IF)) {
+            return selection_statement();
         }
 
         // TODO: compound statement
-        if (match({Token::Type::LEFT_BRACE})) {
-            while (!match({Token::Type::RIGHT_BRACE})) {
-                // TODO: add statements to
-                advance();
-            }
-            consume(Token::Type::RIGHT_BRACE);
-            return nullptr;
+        if (check(Token::Type::LEFT_BRACE)) {
+            return compound_statement();
         }
 
         return expression_statement();
+    }
+
+    std::unique_ptr<ast::Statement> selection_statement() {
+        consume(Token::Type::IF);
+        consume(Token::Type::LEFT_PAREN);
+        auto condition = expression();
+        consume(Token::Type::RIGHT_PAREN);
+        auto stmt = statement();
+        return std::make_unique<ast::IfStatement>(std::move(condition),
+                                                  std::move(stmt));
+    }
+
+    std::unique_ptr<ast::Statement> compound_statement() {
+        std::vector<std::unique_ptr<ast::Statement>> statements;
+        consume(Token::Type::LEFT_BRACE);
+        while (!is_at_end() && !check(Token::Type::RIGHT_BRACE)) {
+            if (auto stmt = statement(); stmt != nullptr) {
+                statements.emplace_back(std::move(stmt));
+            }
+        }
+        consume(Token::Type::RIGHT_BRACE);
+        return std::make_unique<ast::CompoundStatement>(std::move(statements));
     }
 
     std::unique_ptr<ast::Statement> expression_statement() {

@@ -26,7 +26,7 @@ TEST(Node, CreateUnaryExpression) {
 
     EXPECT_STREQ(
         unary_expr->to_string().c_str(),
-        "UnaryOperation(operator: UNARY_PLUS, operand: Literal(value: 3.15))");
+        "UnaryExpression(operator: UNARY_PLUS, operand: Literal(value: 3.15))");
 }
 
 TEST(Node, CreateBinaryExpression) {
@@ -39,7 +39,7 @@ TEST(Node, CreateBinaryExpression) {
 
     // clang-format off
     EXPECT_STREQ(bin_expr->to_string().c_str(),
-            "BinaryOperation("
+            "BinaryExpression("
                "left: Literal(value: 3.14), "
                "operation: ADDITION, "
                "right: Literal(value: 3.15)"
