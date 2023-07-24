@@ -79,20 +79,25 @@ private:
 class IfStatement final : public Statement {
 public:
     IfStatement(std::unique_ptr<Expression> condition,
-                std::unique_ptr<Statement> statement)
+                std::unique_ptr<Statement> then,
+                std::unique_ptr<Statement> else_stmt)
         : condition_(gsl::make_not_null(std::move(condition))),
-          statement_(gsl::make_not_null(std::move(statement))) {}
+          then_(gsl::make_not_null(std::move(then))),
+          else_(std::move(else_stmt)) {}
 
     std::string to_string() const override {
-        return std::vformat("IfStatement(condition: {}, statement: {})",
-                            std::make_format_args(condition_->to_string(),
-                                                  statement_->to_string()));
+        return std::vformat(
+            "IfStatement(condition: {}, then: {}, else: {})",
+            std::make_format_args(condition_->to_string(), then_->to_string(),
+                                  else_ != nullptr ? else_->to_string()
+                                                   : "None"));
     }
 
 private:
     gsl::not_null<std::unique_ptr<Expression>> condition_;
     // TODO: should have a Statement node instead
-    gsl::not_null<std::unique_ptr<Statement>> statement_;
+    gsl::not_null<std::unique_ptr<Statement>> then_;
+    std::unique_ptr<Statement> else_;
 };
 
 class CompoundStatement final : public Statement {

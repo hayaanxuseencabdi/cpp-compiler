@@ -99,9 +99,16 @@ private:
         consume(Token::Type::LEFT_PAREN);
         auto condition = expression();
         consume(Token::Type::RIGHT_PAREN);
-        auto stmt = statement();
-        return std::make_unique<ast::IfStatement>(std::move(condition),
-                                                  std::move(stmt));
+        auto then = statement();
+        std::unique_ptr<ast::Statement> else_stmt = nullptr;
+        if (match({Token::Type::ELSE})) {
+            else_stmt = statement();
+            if (else_stmt == nullptr) {
+                // TODO: error
+            }
+        }
+        return std::make_unique<ast::IfStatement>(
+            std::move(condition), std::move(then), std::move(else_stmt));
     }
 
     std::unique_ptr<ast::Statement> compound_statement() {
@@ -118,6 +125,9 @@ private:
 
     std::unique_ptr<ast::Statement> expression_statement() {
         auto expr = expression();
+        if (expr == nullptr) {
+            // TODO: handle noops gracefully
+        }
         consume(Token::Type::SEMICOLON);
         return expr;
     }

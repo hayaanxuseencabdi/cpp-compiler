@@ -144,8 +144,73 @@ TEST(Parser, ParseSimpleIfStatement) {
                     "left: Literal(value: 2), "
                     "operation: LESS_THAN_OR_EQUAL_TO, "
                     "right: Literal(value: 5)), "
-                    "statement: Literal(value: 3)"
+                "then: Literal(value: 3), "
+                "else: None"
          ")]))"
+                 // clang-format on
+    );
+}
+
+TEST(Parser, ParseSimpleIfElseStatement) {
+    frontend::Scanner scanner(R"(
+        if (2 <= 5) 3;
+        else { 4; }
+    )");
+    frontend::Parser parser(scanner.scan_tokens());
+
+    auto ast = parser.parse();
+
+    EXPECT_STREQ(ast.to_string().c_str(),
+                 // clang-format off
+         "AST(root: CompoundStatement(statements: ["
+            "IfStatement("
+                "condition: BinaryExpression("
+                    "left: Literal(value: 2), "
+                    "operation: LESS_THAN_OR_EQUAL_TO, "
+                    "right: Literal(value: 5)), "
+                "then: Literal(value: 3), "
+                "else: CompoundStatement(statements: ["
+                    "Literal(value: 4)])"
+         ")]))"
+                 // clang-format on
+    );
+}
+
+TEST(Parser, ParseIfElseIfElseIfElseStatement) {
+    frontend::Scanner scanner(R"(
+        if (2 <= 5) 3;
+        else if (0 == 1) { 4; }
+        else if (1 == 1) 2;
+        else { 43; }
+    )");
+    frontend::Parser parser(scanner.scan_tokens());
+
+    auto ast = parser.parse();
+
+    EXPECT_STREQ(ast.to_string().c_str(),
+                 // clang-format off
+         "AST(root: CompoundStatement(statements: ["
+            "IfStatement("
+                "condition: BinaryExpression("
+                    "left: Literal(value: 2), "
+                    "operation: LESS_THAN_OR_EQUAL_TO, "
+                    "right: Literal(value: 5)), "
+                "then: Literal(value: 3), "
+                "else: IfStatement("
+                    "condition: BinaryExpression("
+                        "left: Literal(value: 0), "
+                        "operation: EQUAL_TO, "
+                        "right: Literal(value: 1)), "
+                    "then: CompoundStatement(statements: [Literal(value: 4)]), "
+                    "else: IfStatement("
+                        "condition: BinaryExpression("
+                            "left: Literal(value: 1), "
+                            "operation: EQUAL_TO, "
+                            "right: Literal(value: 1)), "
+                        "then: Literal(value: 2), "
+                        "else: CompoundStatement(statements: [Literal(value: 43)])"
+                    ")"
+             "))]))"
                  // clang-format on
     );
 }

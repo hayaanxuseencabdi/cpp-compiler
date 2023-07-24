@@ -15,7 +15,7 @@ public:
         return std::vformat("AST(root: {})",
                             std::make_format_args(root_ != nullptr
                                                       ? root_->to_string()
-                                                      : "nullptr"));
+                                                      : "None"));
     }
 
 private:
